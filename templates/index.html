@@ -1,33 +1,124 @@
- <!DOCTYPE html>
-<html>
-<body style="background-image: url(https://c4.wallpaperflare.com/wallpaper/323/830/562/nasa-hurricane-typhoon-cyclone-wallpaper-preview.jpg);
-    height: 100vh;
-background-position: center;
-background-repeat: no-repeat;
-background-size: cover;">
-<div class="all" style="position:relative; 
-width: 50vw;
-margin-left: 25vw;
-margin-right: 25vw;
-top:30vh;height: 40vh;
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-background: rgba(0, 0, 0, 0.5);
-color: whitesmoke;">
-<h1 style="margin-left:13vw ;">Cyclone Watch test app</h1>
-<h1 style="margin-left:18vw ;">Image Upload </h1>
-<form method="POST" enctype="multipart/form-data" style="margin-left: 20vw;">
+  <title>Cyclone-Watch</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+  <link href=" {% static 'css/index.css'%}" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+</head>
+<div class="score-input">
+  <form id = "main_form" method="POST" enctype="multipart/form-data" >
     {% csrf_token %}
-    <input type="file" name="upload" accept=".jpg,.jpeg,.png,.jfif" />
+    <input  type="file" name="upload" accept=".jpg,.jpeg,.png,.jfif" />
     <br>
-    <input type="submit" value="submit" />
+    <input id="scoreButton" type="submit" value="submit" />
 </form>
+    
+  </div>
+  
+  <div class="score-viz">
+    <div class="acme-score">
+      <span class="label">Cyclone Intensity</span>
+      <span id="userScore">000</span>
+    </div>
+    <div class="meter">
+      <svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+        <title>Group 2</title>
+        <desc>Created with Sketch.</desc>
+        <defs>
+            <rect id="path-1" x="0" y="0" width="180" height="180"></rect>
+            <linearGradient x1="105.234375%" y1="-4.1953125%" x2="-4.1796875%" y2="104.523438%" id="linearGradient-2">
+                <stop stop-color="#258A19" offset="0%"></stop>
+                <stop stop-color="#E5FA61" offset="53.3761752%"></stop>
+                <stop stop-color="#FAD861" offset="65.8264905%"></stop>
+                <stop stop-color="#F71C1C" offset="100%"></stop>
+            </linearGradient>
+            <path d="M30,180 C30,97.1572875 97.1572875,30 180,30 L180,98 C134.712651,98 98,134.712651 98,180 L30,180 Z" id="path-3"></path>
+        </defs>
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Group-2">
+                <rect class="background" fill="#E0DDDD" x="0" y="0" width="200" height="200"></rect>
+                <g class="guide">
+                    <use fill="#F9F9F9" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    <rect stroke="#FF00C0" stroke-width="1" x="0.5" y="0.5" width="179" height="179"></rect>
+                </g>
+                <g id="Combined-Shape">
+                    <use fill="url(#linearGradient-2)" fill-rule="evenodd" xlink:href="#path-3"></use>
+                    <path stroke="#333333" stroke-width="2" d="M31.0032854,179 L97.0059003,179 C97.5377226,133.95401 133.95401,97.5377226 179,97.0059003 L179,31.0032854 C97.5028865,31.538924 31.538924,97.5028865 31.0032854,179 Z"></path>
+                    <!-- <path stroke="red" stroke-width="2" d="M31.0032854,179 L97.0059003,179 C97.5377226,133.95401 133.95401,97.5377226 179,97.0059003 L179,31.0032854 C97.5028865,31.538924 31.538924,97.5028865 31.0032854,179 Z"></path> -->
+                  </g>
+                <polygon id="needle" class="needle needle-move-to" fill="#000000" points="40 177.714286 186 172 186 185 40 179.285714"></polygon>
+                <circle class="oval" fill="#FFFFFF" cx="179.5" cy="178.5" r="3.5"></circle>
+            </g>
+        </g>
+    </svg>
+    </div>
+  </div>
 
-<br>
-<br>
-<!--<p><p>{{ file_url }}</p></p>-->
-<p style="margin-left: 20vw;">{{ pred }}</p>
-</div>
 
 
-</body>
-</html>
+<script>
+  $(document).ready(function() {
+      // Intercept form submission using AJAX
+      $('#main_form').submit(function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Perform AJAX request
+          $.ajax({
+              type: 'POST',
+              url: "{% url 'main-view' %}",  // Replace with your view URL
+              data: new FormData(this),
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                  // Handle the JSON response
+                  var intensity = response.intensity;
+                  function showScore() {
+                  // Get the score number from the input
+                  // var userScoreInput = document.getElementById("textInput").value
+                  userScore.innerHTML = intensity;
+                  console.log("entered: " + intensity);
+                  maxScore =100;
+  
+                  // Find percent out of max score
+                  var scorePercent = intensity / maxScore;
+                  console.log("score percent out of max: " + scorePercent);
+  
+                  // Find angle to animate to -- between 0 and 90
+                  var needleAngle = scorePercent * 90
+                  console.log("needle angle: " + needleAngle);
+  
+                  // Write angle to transform rotate amount
+                  needle.style.setProperty('--needle-position', needleAngle)
+}
+                  // visulaize the data
+                  scoreButton.addEventListener("click", showScore);
+
+                  // Update your HTML content with the received data
+                  $('#result-container').text('Prediction: ' + intensity);
+              },
+              error: function(error) {
+                  // Handle error if the AJAX request fails
+                  console.log(error);
+              }
+          });
+      });
+  });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
+  <script>
+  VANTA.CLOUDS({
+    el: ".score-viz",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.00,
+    minWidth: 200.00
+  })
+  </script>
+  <!-- <script src="{% static 'js/index.js' %}"></script> -->
