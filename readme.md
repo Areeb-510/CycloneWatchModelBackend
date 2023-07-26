@@ -1,8 +1,6 @@
 # Cyclone Watch
 
-An Machine Learning based web application for Cyclone Warning
-
-## Description
+The Cyclone watch is an innovative and potentially life-saving Android application aimed to provide timely and accurate warning signals to users in tropical regions when there is a possibility of a cyclone. The app utilizes data from INSAT-3D  Images, which are captured at 15-minute intervals, to analyze and predict cyclone formation, intensification, and landfall.
 
 
 ![](https://github.com/Areeb-510/CycloneWatchModelBackend/blob/master/0c99d1e0-d325-4381-bdc0-9222cae7d28a.gif)
